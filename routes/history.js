@@ -1,7 +1,6 @@
 var express = require('express');
 var nconf = require('../config');
 var path = require('path');
-var mime = require('mime');
 var util = require('util');
 
 var logger = require('../log');

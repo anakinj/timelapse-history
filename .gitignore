@@ -2,5 +2,5 @@ logs
 *.log
 
 data
-config/*x
+config/*
 node_modules

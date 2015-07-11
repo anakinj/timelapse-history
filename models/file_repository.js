@@ -20,9 +20,9 @@ module.exports = function (options) {
         fullPath = path.join(__dirname, "..", fullPath)
       }
       
-      logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", filePath, tag));
+      logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", fullPath, tag));
       
-      var walker = walk.walk(filePath, { followLinks: false })
+      var walker = walk.walk(fullPath, { followLinks: false })
           
       walker.on("errors", function(root, nodeStatsArray, next) {
         nodeStatsArray.forEach(function (n) {

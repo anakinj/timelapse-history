@@ -1,0 +1,44 @@
+extends layout
+
+block content
+  h1= title
+  
+  script(type='text/javascript').
+    $(function() {
+  
+      var end = Math.round(new Date().getTime()/1000);
+      var start = Math.round(new Date(2014, 08, 01).getTime()/1000);
+      var step = 2500;
+    
+      $("#slider").slider({
+        max: end,
+        min: start,
+        step: step,
+        value: end,
+        change: function( event, ui ) {
+          $('#image1').attr('src', 'history/north/' + ui.value)
+          $('#image2').attr('src', 'history/inside/' + ui.value)
+        }
+      }).change();
+      
+      var interval;
+      
+      $('#play').click(function() {
+        if(interval) {
+          clearInterval(interval);
+          interval = null;
+          $(this).text('PLAY');
+        } else {
+          $(this).text('STOP');
+          interval = setInterval(function() {
+            $("#slider").slider('value',$("#slider").slider('value')+6000);
+          }, 500);
+        }
+      });
+    });
+  
+  div.history-container
+    img(id="image1" src="")
+    img(id="image2" src="")
+    div(id="slider")
+    a(href="#" id="play") PLAY

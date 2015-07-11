@@ -1,0 +1,18 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.history-container
+{
+  width: 100%;
+}
+.history-container img {
+    width: 50%;
+    background-image: url('http://placehold.it/940x529&text=notfound');
+    min-height: 200px;
+}

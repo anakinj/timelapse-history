@@ -79,6 +79,7 @@ module.exports = function (options) {
       }
       
       callback(null, row ? row.path : null);
+      
     });
   }
   

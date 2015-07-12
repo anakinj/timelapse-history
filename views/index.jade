@@ -10,7 +10,7 @@ block content
       var start = Math.round(new Date(2014, 08, 01).getTime()/1000);
       var step = 2500;
       
-      var nImages =0;
+      var nImages = 0;
       
       var img1 = new Image();
       var img2 = new Image();
@@ -53,7 +53,9 @@ block content
         } else {
           $(this).text('STOP');
           interval = setInterval(function() {
-            $("#slider").slider('value',$("#slider").slider('value')+6000);
+            if(nImages === 0) {
+              $("#slider").slider('value',$("#slider").slider('value')+6000);
+            }
           }, 500);
         }
       });

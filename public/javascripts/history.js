@@ -62,15 +62,18 @@ $(function() {
 
   var interval;
 
-  $('#fb').click(function() {
+  $('#fb').click(function(ev) {
+    ev.preventDefault();
     playStep -= 1000;
   });
 
-  $('#ff').click(function() {
+  $('#ff').click(function(ev) {
+    ev.preventDefault();
     playStep += 1000;
   });
 
-  $('#play').click(function() {
+  $('#play').click(function(ev) {
+    ev.preventDefault();
     if(interval) {
       clearInterval(interval);
       interval = null;

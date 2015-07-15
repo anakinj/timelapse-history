@@ -1,5 +1,5 @@
 var express = require('express');
-var nconf = require('../config');
+var conf = require('../config');
 var path = require('path');
 var util = require('util');
 
@@ -7,7 +7,7 @@ var logger = require('../log');
 var router = express.Router();
 var fileRepo = require("../models/file_repository");
 
-var testRepo = fileRepo({ files: nconf.files});
+var testRepo = fileRepo({ files: conf.files});
 
 router.get('/:tag/:timestamp', function(req, res, next) {
   logger.info(util.format("History call with '%s' for '%s'", req.params.tag, req.params.timestamp));

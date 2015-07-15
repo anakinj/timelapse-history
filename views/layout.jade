@@ -3,8 +3,10 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-    link(rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/cupertino/jquery-ui.css")
-    script(src="//code.jquery.com/jquery-1.10.2.js")
-    script(src="//code.jquery.com/ui/1.11.4/jquery-ui.js")
+    link(rel='stylesheet', href='/components/rangeslider.js/dist/rangeslider.css')
+    block styles
+    script(src="components/jquery/dist/jquery.min.js")
+    script(src="components/rangeslider.js/dist/rangeslider.js")
+    block scripts
   body
     block content

@@ -1,0 +1,21 @@
+{
+  "name": "timelapse-history",
+  "version": "1.0.0",
+  "authors": [
+    "Joakim Antman <antmanj@gmail.com>"
+  ],
+  "description": "Timelapse History",
+  "main": "bin/wwww",
+  "license": "MIT",
+  "homepage": "history.lovsala.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "rangeslider.js": "~1.2.1"
+  }
+}

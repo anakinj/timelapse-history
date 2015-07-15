@@ -1,68 +1,13 @@
 extends layout
-
+block scripts
+  script(src="/javascripts/history.js")
 block content
   h1= title
   
-  script(type='text/javascript').
-    $(function() {
-  
-      var end = Math.round(new Date().getTime()/1000);
-      var start = Math.round(new Date(2014, 08, 01).getTime()/1000);
-      var step = 2500;
-      
-      var nImages = 0;
-      
-      var img1 = new Image();
-      var img2 = new Image();
-      
-      img1.onload = function() {
-        nImages--;
-        if(nImages === 0) {
-          $('#image1').attr('src', img1.src)
-          $('#image2').attr('src', img2.src)
-        }
-      };
-      
-      img2.onload = function() {
-        nImages--;
-        if(nImages === 0) {
-          $('#image1').attr('src', img1.src)
-          $('#image2').attr('src', img2.src)
-        }
-      };
-      
-      $("#slider").slider({
-        max: end,
-        min: start,
-        step: step,
-        value: end,
-        change: function( event, ui ) {
-          nImages = 2;
-          img1.src = 'history/north/' + ui.value;
-          img2.src = 'history/inside/' + ui.value;
-        }
-      }).change();
-      
-      var interval;
-      
-      $('#play').click(function() {
-        if(interval) {
-          clearInterval(interval);
-          interval = null;
-          $(this).text('PLAY');
-        } else {
-          $(this).text('STOP');
-          interval = setInterval(function() {
-            if(nImages === 0) {
-              $("#slider").slider('value',$("#slider").slider('value')+6000);
-            }
-          }, 500);
-        }
-      });
-    });
-  
   div.history-container
-    img(id="image1" src="")
-    img(id="image2" src="")
-    div(id="slider")
+    div
+      each tag in tags
+        img('data-stamp-url' = '/history/' + tag)
+    input(id="slider" type="range")
+    div.current-timestamp
     a(href="#" id="play") PLAY

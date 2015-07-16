@@ -45,12 +45,11 @@ $(function() {
     }
   };
 
-
   imgs.push({
     element: this,
     image :img
    });
- });
+  });
 
   $('#slider').attr('min', start).attr('max', end).attr('step', step).rangeslider({
     polyfill:false,
@@ -95,11 +94,11 @@ $(function() {
               newStep+=playStep;
             }while(hours >= 22 || hours <= 6)
           }
-          updateDate(newStep);
+
           $("#slider").val(newStep).change();
           $('input[type="range"]').rangeslider('update', true);
         }
-        
+
       }, 500);
     }
   });

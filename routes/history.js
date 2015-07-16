@@ -5,7 +5,7 @@ var util = require('util');
 
 var logger = require('../log');
 var router = express.Router();
-var fileRepo = require("../models/file_repository");
+var fileRepo = require("../repositories/file_repository");
 
 var testRepo = fileRepo({ files: conf.files});
 

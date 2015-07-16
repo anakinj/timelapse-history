@@ -25,7 +25,8 @@ header
     width 50%
     min-height 400px
     margin-bottom 1em
-    background-image url('http://placehold.it/400x400&text=loading')
+    background-image url('http://placehold.it/400x400&text=NOTFOUND')
+    background-size 100% auto
   input[type='range']
     width 100%
   .rangeslider__fill
@@ -33,9 +34,14 @@ header
   .current-timestamp, .controls
     padding 1em 0 0 0.5em
     text-align center
+    text-transform uppercase
   .controls
-    font-size 2em
     color #000
     a
+      font-size 2em
       text-decoration: none
-      margin: 0 0.2em 0 0.2em
+      margin 0 0.2em 0 0.2em
+    div
+      margin 0.5em 0
+      label > span
+        margin-left 0.5em

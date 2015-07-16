@@ -9,6 +9,12 @@ block content
     input(id="slider" type="range")
     div.current-timestamp
     div.controls
-      a(href="#" id="fb" class="glyphicon glyphicon-fast-backward")
-      a(href="#" id="play" class="glyphicon glyphicon-play")
-      a(href="#" id="ff" class="glyphicon glyphicon-fast-forward")
+      div
+        a(href="#" id="fb" class="glyphicon glyphicon-fast-backward")
+        a(href="#" id="play" class="glyphicon glyphicon-play")
+        a(href="#" id="ff" class="glyphicon glyphicon-fast-forward")
+      div
+        label
+          input(id="skip-nights" type="checkbox")
+          span
+            |skip nights

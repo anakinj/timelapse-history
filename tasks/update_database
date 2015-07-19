@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+var conf = require('../config');
+var fileRepo = require("../repositories/file_repository");
+
+var repo = fileRepo({ files: conf.files});
+
+repo.updateDatabase();

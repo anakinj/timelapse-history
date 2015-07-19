@@ -1,85 +1,82 @@
-module.exports = function (options) {
-  var fs = require('fs');
+module.exports = function(options) {
   var path = require('path')
   var logger = require('../log');
+  var db = require('../models/db');
   var util = require('util');
-  var sqlite3 = require('sqlite3').verbose();
+  var walk = require('walk');
+  var orm = require('orm');
 
   this.fileCount = 0;
   self = this;
 
-  logger.info(util.format("Initializing FileRepository"));
+  function populate(tag, fullPath) {
 
-  this.db = new sqlite3.Database('data/files.db');
-  
-  this.db.serialize(function() {
-    function populate(tag, fullPath) {
-      var walk = require('walk');
+    if (fullPath.indexOf('/') !== 0) {
+      fullPath = path.join(__dirname, "..", fullPath)
+    }
 
-      if(fullPath.indexOf('/') !== 0) {
-        fullPath = path.join(__dirname, "..", fullPath)
-      }
+    logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", fullPath, tag));
 
-      logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", fullPath, tag));
+    var walker = walk.walk(fullPath, {
+      followLinks: false
+    })
 
-      var walker = walk.walk(fullPath, { followLinks: false })
+    walker.on("errors", function(root, nodeStatsArray, next) {
+      nodeStatsArray.forEach(function(n) {
+        logger.error(n.name + ", " + n.error.message || (n.error.code + ": " + n.error.path));
+      });
+      next();
+    });
 
-      walker.on("errors", function(root, nodeStatsArray, next) {
-        nodeStatsArray.forEach(function (n) {
-          logger.error(n.name + ", " + n.error.message || (n.error.code + ": " + n.error.path));
-        });
-
+    walker.on("file", function(root, fileStat, next) {
+      if (path.extname(fileStat.name) !== '.jpg') {
         next();
-      });
-
-      walker.on("file", function (root, fileStat, next) {
-        if(path.extname(fileStat.name) !== '.jpg') {
-          next();
-          return;
-        }
-
-        var mtime = Math.floor(fileStat.ctime.getTime() / 1000);
-        var fullPath = path.join(root, fileStat.name);
-
-        if(self.fileCount % 10 === 0) {
-          logger.info(util.format("Populate. File '%s'. Tag %s. Count %d. mtime: %d", fileStat.name, tag, self.fileCount, mtime));
-        }
-
-        self.db.get("SELECT * FROM files WHERE path = ?", fullPath, function(err, row) {
-          if(err){
-            throw err;
-          }
-
-          if(!row) {
-            var stmt = self.db.prepare('INSERT INTO files VALUES (?, ?, ?)');
-            stmt.run(tag, mtime, fullPath);
-            self.fileCount++;
-          }
-
-          next();
-        });
-      });
-    }
-
-    self.db.run("CREATE TABLE IF NOT EXISTS files (tag TEXT, mtime int, path TEXT UNIQUE)");
-    self.db.run("CREATE INDEX IF NOT EXISTS files_mtime ON files (mtime)");
-
-    for (var property in options.files) {
-      var filePath = options.files[property];
-      populate(property, filePath);
-    }
-  });
-
-  this.getFileByTimestamp =  function (tag, time, callback) {
-    var stmt = this.db.prepare('SELECT path FROM files WHERE tag = ? AND mtime <= ? ORDER BY mtime DESC LIMIT 1');
-    stmt.get(tag, time, function(err, row) {
-      if(err) {
-        callback(err, null);
         return;
       }
 
-      callback(null, row ? row.path : null);
+      var fullPath = path.join(root, fileStat.name);
 
+      logger.info(util.format("File: %s\ttag: %s\tcount: %d\tcreated: %d", fileStat.name, tag, self.fileCount, fileStat.ctime));
+
+      db(function(instance) {
+        instance.models.file.count({
+          path: fullPath
+        }, function(err, count) {
+          if (err) {
+            throw err;
+          }
+
+          if (count <= 0) {
+            instance.models.file.create([{
+              tag: tag,
+              path: fullPath,
+              created: fileStat.ctime
+            }], function(err, file) {
+              if (err) throw err;
+              self.fileCount++;
+            });
+          }
+          next();
+        });
+      });
+    });
+  }
+
+  this.updateDatabase = function() {
+    for (var property in options.files) {
+      populate(property, options.files[property]);
+    }
+  };
+
+  this.getFileByTimestamp = function(tag, time, callback) {
+    db(function(instance) {
+      instance.models.file.find({
+        tag: tag,
+        created: orm.lte(new Date(time * 1000))
+      }, ['created', 'Z'], 1, function(err, rows) {
+        if (err) throw err;
+        callback(null, rows.length >= 1 ? rows[0].path : null);
+      });
     });
   }
 

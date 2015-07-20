@@ -39,14 +39,14 @@ module.exports = function(options) {
       logger.info(util.format("File: %s\ttag: %s\tcount: %d\tcreated: %d", fileStat.name, tag, self.fileCount, fileStat.ctime));
 
       db(function(instance) {
-        instance.models.file.count({
+        instance.models.file.exists({
           path: fullPath
-        }, function(err, count) {
+        }, function(err, exists) {
           if (err) {
             throw err;
           }
 
-          if (count <= 0) {
+          if (exists) {
             instance.models.file.create([{
               tag: tag,
               path: fullPath,

@@ -5,9 +5,32 @@ module.exports = function(options) {
   var util = require('util');
   var walk = require('walk');
   var orm = require('orm');
+  var watch = require('watch');
 
   this.fileCount = 0;
   self = this;
+
+  function addFile(tag, fullPath, ctime) {
+    db(function(instance) {
+      instance.models.file.exists({
+        path: fullPath
+      }, function(err, exists) {
+        if (err) {
+          throw err;
+        }
+        if (!exists) {
+          instance.models.file.create([{
+            tag: tag,
+            path: fullPath,
+            created: ctime
+          }], function(err, file) {
+            if (err) throw err;
+            self.fileCount++;
+          });
+        }
+      });
+    });
+  }
 
   function populate(tag, fullPath) {
 
@@ -38,26 +61,16 @@ module.exports = function(options) {
 
       logger.info(util.format("File: %s\ttag: %s\tcount: %d\tcreated: %d", fileStat.name, tag, self.fileCount, fileStat.ctime));
 
-      db(function(instance) {
-        instance.models.file.exists({
-          path: fullPath
-        }, function(err, exists) {
-          if (err) {
-            throw err;
-          }
+      addFile(tag, fullPath, fileStat.ctime);
 
-          if (exists) {
-            instance.models.file.create([{
-              tag: tag,
-              path: fullPath,
-              created: fileStat.ctime
-            }], function(err, file) {
-              if (err) throw err;
-              self.fileCount++;
-            });
-          }
-          next();
-        });
+      next();
+    });
+  }
+
+  function startMonitor(tag, root) {
+    watch.createMonitor(root, function(monitor) {
+      monitor.on('created', function(f, stat) {
+        addFile(tag, path.join(__dirname, f), stat.ctime);
       });
     });
   }
@@ -67,6 +80,12 @@ module.exports = function(options) {
       populate(property, options.files[property]);
     }
   };
+
+  this.watchFolders = function() {
+    for (var property in options.files) {
+      startMonitor(property, options.files[property]);
+    }
+  }
 
   this.getFileByTimestamp = function(tag, time, callback) {
     db(function(instance) {

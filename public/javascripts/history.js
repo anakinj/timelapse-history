@@ -20,7 +20,6 @@ $(function() {
   function changeImage(stamp) {
     nImages = imgs.length;
     updateDate(stamp);
-    History.pushState({stamp:stamp}, stamp, "?stamp=" + stamp);
     $(imgs).each(function() {
       this.image.src = $(this.element).data('stamp-url') + '/' + stamp;
     });

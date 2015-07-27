@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
       title: 'History',
       tags: [],
       minDate: Math.round(Date.parse(metadata.minCreated) / 1000),
-      maxDate: Math.round(new Date().getTime() / 1000)
+      maxDate: Math.round(Date.parse(metadata.maxCreated) / 1000)
     };
     for (var property in conf.files) {
       viewModel.tags.push(property);

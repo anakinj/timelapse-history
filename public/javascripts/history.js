@@ -1,7 +1,5 @@
 $(function() {
   var transparent = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  var end = Math.round(new Date().getTime() / 1000);
-
   var playStep = 2 * 60 * 60;
 
   var nImages = 0;
@@ -57,7 +55,7 @@ $(function() {
     }
   }).change(function() {
     changeImage($(this).val());
-  }).val(end).change();
+  }).val($('#slider').attr('max')).change();
 
   var interval;
 

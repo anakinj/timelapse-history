@@ -1,8 +1,6 @@
 $(function() {
-  var transparent = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  var transparent = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
   var end = Math.round(new Date().getTime() / 1000);
-  var start = Math.round(new Date(2014, 08, 1).getTime() / 1000);
-  var step = 2500;
 
   var playStep = 2 * 60 * 60;
 
@@ -49,7 +47,7 @@ $(function() {
     });
   });
 
-  $('#slider').attr('min', start).attr('max', end).attr('step', step).rangeslider({
+  $('#slider').rangeslider({
     polyfill: false,
     onSlide: function(position, value) {
       updateDate(value);

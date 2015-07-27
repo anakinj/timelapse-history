@@ -1,4 +1,7 @@
 {
+  "misc": {
+    "debug_sql": false
+  },
   "files": {
     "TAG1": "data/tag1",
     "TAG2": "data/tag2"

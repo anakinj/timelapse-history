@@ -1,5 +1,5 @@
 module.exports = function(options) {
-  var path = require('path')
+  var path = require('path');
   var logger = require('../log');
   var db = require('../models/db');
   var util = require('util');
@@ -7,13 +7,15 @@ module.exports = function(options) {
   var orm = require('orm');
   var watch = require('watch');
 
-  this.fileCount = 0;
-  self = this;
+  this.addedCount = 0;
+  var self = this;
 
-  function addFile(tag, fullPath, ctime) {
+  function addFile(tag, filePath, ctime) {
+    logger.info(util.format("Adding file: %s\tTag: %s\tCreated: %d\tCount: %d", filePath, tag, ctime, self.addedCount));
+
     db(function(instance) {
       instance.models.file.exists({
-        path: fullPath
+        path: filePath
       }, function(err, exists) {
         if (err) {
           throw err;
@@ -21,28 +23,43 @@ module.exports = function(options) {
         if (!exists) {
           instance.models.file.create([{
             tag: tag,
-            path: fullPath,
+            path: filePath,
             created: ctime
           }], function(err, file) {
             if (err) throw err;
-            self.fileCount++;
+            self.addedCount++;
           });
         }
       });
     });
   }
 
-  function populate(tag, fullPath) {
+  function removeFile(tag, filePath) {
+    logger.info(util.format("Removing file: %s\tTag: %s", filePath, tag));
 
-    if (fullPath.indexOf('/') !== 0) {
-      fullPath = path.join(__dirname, "..", fullPath)
+    db(function(instance) {
+      instance.models.file.find({
+        path: filePath,
+        tag: tag
+      }).remove();
+    });
+  }
+
+  function rootPath(pathToRoot) {
+    if (pathToRoot.indexOf('/') !== 0) {
+      return path.join(__dirname, "..", pathToRoot);
     }
+    return pathToRoot;
+  }
+
+  function populate(tag, fullPath) {
+    fullPath = rootPath(fullPath);
 
     logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", fullPath, tag));
 
     var walker = walk.walk(fullPath, {
       followLinks: false
-    })
+    });
 
     walker.on("errors", function(root, nodeStatsArray, next) {
       nodeStatsArray.forEach(function(n) {
@@ -59,18 +76,23 @@ module.exports = function(options) {
 
       var fullPath = path.join(root, fileStat.name);
 
-      logger.info(util.format("File: %s\ttag: %s\tcount: %d\tcreated: %d", fileStat.name, tag, self.fileCount, fileStat.ctime));
-
       addFile(tag, fullPath, fileStat.ctime);
 
       next();
     });
   }
 
-  function startMonitor(tag, root) {
-    watch.createMonitor(root, function(monitor) {
+  function startMonitor(tag, tagPath) {
+    tagPath = rootPath(tagPath);
+
+    logger.info(util.format("Starting to watch folder '%s' with tag '%s'", tagPath, tag));
+
+    watch.createMonitor(tagPath, function(monitor) {
       monitor.on('created', function(f, stat) {
-        addFile(tag, path.join(__dirname, f), stat.ctime);
+        addFile(tag, f, stat.ctime);
+      });
+      monitor.on('removed', function(f, stat) {
+        removeFile(tag, f);
       });
     });
   }
@@ -85,7 +107,7 @@ module.exports = function(options) {
     for (var property in options.files) {
       startMonitor(property, options.files[property]);
     }
-  }
+  };
 
   this.getFileByTimestamp = function(tag, time, callback) {
     db(function(instance) {
@@ -97,7 +119,19 @@ module.exports = function(options) {
         callback(null, rows.length >= 1 ? rows[0].path : null);
       });
     });
-  }
+  };
+
+  this.getMetaData = function(cb) {
+    db(function(instance) {
+      instance.driver.execQuery("SELECT MAX(created) as maxCreated, MIN(created) as minCreated, COUNT(*) as count FROM file",
+        function(err, data) {
+          if (err) {
+            throw err;
+          }
+          cb(data[0]);
+        });
+    });
+  };
 
   return this;
 };

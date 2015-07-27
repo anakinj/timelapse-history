@@ -1,5 +1,6 @@
-var file = require('./file')
+var file = require('./file');
 var orm = require('orm');
+var conf = require('../config');
 
 function setup(db) {
   file(orm, db);
@@ -12,9 +13,13 @@ module.exports = function(cb) {
     cb(database);
     return;
   }
-  orm.connect('sqlite://' + __dirname + '/../data/files.db?debug=true',
+  orm.settings.set('connection.debug', conf.misc.debug_sql || false);
+
+  orm.connect('sqlite://' + __dirname + '/../data/files.db',
     function(err, instance) {
-      if (err) return cb(err);
+      if (err) {
+       throw err;
+      }
 
       setup(instance);
 

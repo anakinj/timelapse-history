@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: function(queryInterface, Sequelize) {
-    queryInterface.createTable('file', {
+    queryInterface.createTable('timelapse_file', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -21,11 +21,11 @@ module.exports = {
         type: Sequelize.INTEGER
       }
     }).then(function (){
-      return queryInterface.addIndex('file', ['tag', 'name']);
+      return queryInterface.addIndex('timelapse_file', ['tag', 'name']);
     });
   },
   down: function(queryInterface, Sequelize) {
-    queryInterface.removeIndex('file', ['tag', 'name']);
-    returnqueryInterface.dropTable('file');
+    queryInterface.removeIndex('timelapse_file', ['tag', 'name']);
+    returnqueryInterface.dropTable('timelapse_file');
   }
 };

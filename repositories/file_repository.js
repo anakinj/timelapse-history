@@ -44,7 +44,7 @@ module.exports = function(options) {
   function populate(tag, folderPath) {
     var fullPath = rootPath(folderPath);
 
-    logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", fullPath, tag));
+    logger.info(util.format("Populating database from dir '%s' as tag '%s'", fullPath, tag));
 
     var walker = walk.walk(fullPath, {
       followLinks: false

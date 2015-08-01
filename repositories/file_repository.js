@@ -118,7 +118,7 @@ module.exports = function(options) {
 
   this.getMetaData = function(cb) {
     models.sequelize.query(
-      'SELECT MAX(created) as maxCreated, MIN(created) as minCreated, COUNT(*) as count FROM file', {
+      'SELECT MAX(created) as maxCreated, MIN(created) as minCreated, COUNT(*) as count FROM ' + models.File.getTableName(), {
         type: models.sequelize.QueryTypes.SELECT
       }).then(function(rows) {
       cb(rows[0]);

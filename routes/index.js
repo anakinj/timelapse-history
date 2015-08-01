@@ -7,14 +7,15 @@ var fileRepo = require("../repositories/file_repository");
 var repo = fileRepo({
   files: conf.files
 });
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   repo.getMetaData(function(metadata) {
     var viewModel = {
       title: 'History',
       tags: [],
-      minDate: Math.round(Date.parse(metadata.minCreated) / 1000),
-      maxDate: Math.round(Date.parse(metadata.maxCreated) / 1000)
+      minDate: metadata.minCreated,
+      maxDate: metadata.maxCreated
     };
     for (var property in conf.files) {
       viewModel.tags.push(property);

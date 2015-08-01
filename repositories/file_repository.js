@@ -1,48 +1,37 @@
 module.exports = function(options) {
   var path = require('path');
   var logger = require('../log');
-  var db = require('../models/db');
+  var models = require('../models');
   var util = require('util');
   var walk = require('walk');
-  var orm = require('orm');
   var watch = require('watch');
 
   this.addedCount = 0;
   var self = this;
 
-  function addFile(tag, filePath, ctime) {
-    logger.info(util.format("Adding file: %s\tTag: %s\tCreated: %d\tCount: %d", filePath, tag, ctime, self.addedCount));
+  function addFile(tag, fileName, ctime) {
+    logger.info(util.format("Adding file: %s\tTag: %s\tCreated: %d\tCount: %d", fileName, tag, ctime, self.addedCount));
 
-    db(function(instance) {
-      instance.models.file.exists({
-        path: filePath
-      }, function(err, exists) {
-        if (err) {
-          throw err;
+    models.File.count({
+        where: {
+          name: fileName
         }
-        if (!exists) {
-          instance.models.file.create([{
+      })
+      .then(function(count) {
+        if (!count) {
+          models.File.create({
             tag: tag,
-            path: filePath,
-            created: ctime
-          }], function(err, file) {
-            if (err) throw err;
+            name: fileName,
+            created: Math.round(ctime.getTime() / 1000)
+          }).then(function(file, created) {
             self.addedCount++;
           });
         }
       });
-    });
   }
 
-  function removeFile(tag, filePath) {
-    logger.info(util.format("Removing file: %s\tTag: %s", filePath, tag));
-
-    db(function(instance) {
-      instance.models.file.find({
-        path: filePath,
-        tag: tag
-      }).remove();
-    });
+  function removeFile(tag, fileName) {
+    logger.info(util.format("Removing file: %s\tTag: %s", fileName, tag));
   }
 
   function rootPath(pathToRoot) {
@@ -52,8 +41,8 @@ module.exports = function(options) {
     return pathToRoot;
   }
 
-  function populate(tag, fullPath) {
-    fullPath = rootPath(fullPath);
+  function populate(tag, folderPath) {
+    var fullPath = rootPath(folderPath);
 
     logger.info(util.format("Populating SQLite database from dir '%s' as tag '%s'", fullPath, tag));
 
@@ -74,9 +63,7 @@ module.exports = function(options) {
         return;
       }
 
-      var fullPath = path.join(root, fileStat.name);
-
-      addFile(tag, fullPath, fileStat.ctime);
+      addFile(tag, fileStat.name, fileStat.ctime);
 
       next();
     });
@@ -97,6 +84,10 @@ module.exports = function(options) {
     });
   }
 
+  function getFullPath(tag, name) {
+    return path.join(options.files[tag], name);
+  }
+
   this.updateDatabase = function() {
     for (var property in options.files) {
       populate(property, options.files[property]);
@@ -110,26 +101,27 @@ module.exports = function(options) {
   };
 
   this.getFileByTimestamp = function(tag, time, callback) {
-    db(function(instance) {
-      instance.models.file.find({
+    models.File.findOne({
+      where: {
         tag: tag,
-        created: orm.lte(new Date(time * 1000))
-      }, ['created', 'Z'], 1, function(err, rows) {
-        if (err) throw err;
-        callback(null, rows.length >= 1 ? rows[0].path : null);
-      });
+        created: {
+          $lte: parseInt(time, 10)
+        }
+      },
+      order: [
+        ['created', 'DESC']
+      ]
+    }).then(function(file) {
+      callback(file ? getFullPath(file.tag, file.name) : null);
     });
   };
 
   this.getMetaData = function(cb) {
-    db(function(instance) {
-      instance.driver.execQuery("SELECT MAX(created) as maxCreated, MIN(created) as minCreated, COUNT(*) as count FROM file",
-        function(err, data) {
-          if (err) {
-            throw err;
-          }
-          cb(data[0]);
-        });
+    models.sequelize.query(
+      'SELECT MAX(created) as maxCreated, MIN(created) as minCreated, COUNT(*) as count FROM file', {
+        type: models.sequelize.QueryTypes.SELECT
+      }).then(function(rows) {
+      cb(rows[0]);
     });
   };
 

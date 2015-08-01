@@ -1,3 +1,4 @@
+'use strict';
 var express = require('express');
 var conf = require('../config');
 var path = require('path');
@@ -12,8 +13,10 @@ var repo = fileRepo({
 });
 
 router.get('/:tag/:timestamp', function(req, res, next) {
+
   logger.info(util.format("History call with '%s' for '%s'", req.params.tag, req.params.timestamp));
-  repo.getFileByTimestamp(req.params.tag, req.params.timestamp, function(err, file) {
+
+  repo.getFileByTimestamp(req.params.tag, req.params.timestamp, function(file) {
     if (!file) {
       res.sendStatus(404);
     } else {

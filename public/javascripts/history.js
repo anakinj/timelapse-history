@@ -1,6 +1,6 @@
 $(function() {
   var transparent = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  var playStep = 2 * 60 * 60;
+  var playStep = 60 * 60;
 
   var nImages = 0;
 
@@ -55,18 +55,18 @@ $(function() {
     }
   }).change(function() {
     changeImage($(this).val());
-  }).val($('#slider').attr('max')).change();
+  }).change();
 
   var interval;
 
   $('#fb').click(function(ev) {
     ev.preventDefault();
-    playStep -= 60 * 60 * 2;
+    playStep -= 60 * 60 * 1;
   });
 
   $('#ff').click(function(ev) {
     ev.preventDefault();
-    playStep += 60 * 60 * 2;
+    playStep += 60 * 60 * 1;
   });
 
   $('#play').click(function(ev) {

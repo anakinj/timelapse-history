@@ -6,7 +6,7 @@ block content
     div
       each tag in tags
         img('data-stamp-url' = '/history/' + tag)
-    input(id="slider" type="range", min=minDate, max=maxDate, step=2500)
+    input(id="slider" type="range", min=minDate, max=maxDate, value=maxDate, step=2000)
     div.current-timestamp
     div.controls
       div

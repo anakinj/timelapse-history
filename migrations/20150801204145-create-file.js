@@ -25,7 +25,8 @@ module.exports = {
     });
   },
   down: function(queryInterface, Sequelize) {
-    queryInterface.removeIndex('timelapse_file', ['tag', 'name']);
-    returnqueryInterface.dropTable('timelapse_file');
+    return queryInterface.removeIndex('timelapse_file', ['tag', 'name']).then(function (){
+      return queryInterface.dropTable('timelapse_file');
+    });
   }
 };

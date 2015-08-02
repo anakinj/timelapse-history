@@ -76,16 +76,16 @@ module.exports = function(options) {
 
     watch.createMonitor(tagPath, function(monitor) {
       monitor.on('created', function(f, stat) {
-        addFile(tag, f, stat.ctime);
+        addFile(tag, path.basename(f), stat.ctime);
       });
       monitor.on('removed', function(f, stat) {
-        removeFile(tag, f);
+        removeFile(tag, path.basename(f));
       });
     });
   }
 
   function getFullPath(tag, name) {
-    return path.join(options.files[tag], name);
+    return rootPath(path.join(options.files[tag], name));
   }
 
   this.updateDatabase = function() {

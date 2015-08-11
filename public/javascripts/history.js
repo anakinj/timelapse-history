@@ -3,7 +3,8 @@
   'use strict';
   $(function() {
     var transparent = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    var playStep = 60 * 60;
+    var fifteenMins = 60 * 15;
+    var playStep = fifteenMins;
 
     var nImages = 0;
 
@@ -94,12 +95,12 @@
 
     $('#fb').click(function(ev) {
       ev.preventDefault();
-      playStep -= 60 * 60 * 1;
+      playStep -= fifteenMins;
     });
 
     $('#ff').click(function(ev) {
       ev.preventDefault();
-      playStep += 60 * 60 * 1;
+      playStep += fifteenMins;
     });
 
     $('#play').click(function(ev) {

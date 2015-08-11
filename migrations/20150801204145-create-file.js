@@ -20,12 +20,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       }
-    }).then(function (){
+    }).then(function() {
       return queryInterface.addIndex('timelapse_file', ['tag', 'name']);
     });
   },
   down: function(queryInterface, Sequelize) {
-    return queryInterface.removeIndex('timelapse_file', ['tag', 'name']).then(function (){
+    return queryInterface.removeIndex('timelapse_file', ['tag', 'name']).then(function() {
       return queryInterface.dropTable('timelapse_file');
     });
   }
